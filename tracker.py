@@ -3,39 +3,39 @@
 # ASIN: https://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number
 
 import pandas as pd
-from lxml import html
-from bs4 import BeautifulSoup
-import requests
 import time
 from time import sleep
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
-def check(url):
-    print(f'Checking: {url}')
-    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
+def check2(url):
+    driver = webdriver.Chrome('./chromedriver')
 
-    page = requests.get(url, headers = headers)
-
-    soup = BeautifulSoup(page.content, features="lxml")
-    sleep(1)
+    driver.get(url)
+    product_info = {}
+    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.XPATH,'//span[@id="productTitle"]')))
     try:
-        title = soup.find(id='productTitle').get_text().strip()
+        title = driver.find_element_by_xpath('//span[@id="productTitle"]').text.strip()
     except:
         title = 'No Title detected'
-    
+
     try:
-        price = float(soup.find(id='priceblock_ourprice').get_text().replace('.', '').replace('€', '').replace(',', '.').strip())
+        price = driver.find_element_by_xpath("(//span[contains(@class,'a-color-price')])[1]")
     except:
         price = 'No Price detected'
-    
+
     try:
-        stock = soup.find(id='availability')[0].get_text().strip()
+        stock = driver.find_element_by_xpath('//span[@id="availability"]').text.strip()
     except:
-        stock = 'No Availability detected'
+        stock = 'No Title detected'
+    
+    driver.quit()
 
     return title, stock, price
-    
 
 
 def main():
@@ -47,7 +47,7 @@ def main():
     eighties.columns = ['ASIN', 'link']
 
     for ele in eighties['ASIN']:
-        title, availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
+        title, availability, price = check2(url = 'https://www.amazon.it/dp/' + str(ele))
         print(f'\tProduct: \t{title}')
         print(f'\tStock: \t\t{availability}')
         print(f'\tPrice: \t\t{price}\n')
