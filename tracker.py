@@ -1,7 +1,6 @@
 # Hi, nice to meet u. My name is Daniel
 
-# ASIN of 3080s: https://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number
-
+# ASIN: https://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number
 
 import pandas as pd
 from lxml import html
@@ -13,7 +12,7 @@ from time import sleep
 
 
 def check(url):
-    print(f'Checking {url}')
+    print(f'Checking: {url}')
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
 
     page = requests.get(url, headers = headers)
@@ -23,21 +22,19 @@ def check(url):
     try:
         title = soup.find(id='productTitle').get_text().strip()
     except:
-        title = 'No Title'
+        title = 'No Title detected'
     
-    print(f'Product title: {title}')
-    # to prevent script from crashing when there isn't a price for the product
     try:
         price = float(soup.find(id='priceblock_ourprice').get_text().replace('.', '').replace('€', '').replace(',', '.').strip())
     except:
-        price = ''
+        price = 'No Price detected'
     
     try:
-        stock = soup.find(id='productTitle')[0].get_text().strip()
+        stock = soup.find(id='availability')[0].get_text().strip()
     except:
-        stock = 'Qualcosa e\' andato storto mentre controllavo'
+        stock = 'No Availability detected'
 
-    return stock, price
+    return title, stock, price
     
 
 
@@ -50,15 +47,10 @@ def main():
     eighties.columns = ['ASIN', 'link']
 
     for ele in eighties['ASIN']:
-        availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
-        print(f'Stock: {availability}')
-        print(f'Price: {price}\n')
-
-
-
-
-
-
+        title, availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
+        print(f'\tProduct: \t{title}')
+        print(f'\tStock: \t\t{availability}')
+        print(f'\tPrice: \t\t{price}\n')
 
 
 
