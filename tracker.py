@@ -26,12 +26,6 @@ def check(url):
         title = 'No Title detected'
 
     try:
-        price = driver.find_element_by_xpath('(//span[@id="priceblock_ourprice"]').text.strip()
-    except Exception as e:
-        price = 'No Price detected'
-        # print(e)
-
-    try:
         # "(//span[contains(@class,'a-size-medium a-color-success')])[1]"
         stock = driver.find_element_by_xpath("(//span[contains(@class,'a-size-medium a-color-success')])[1]").text.strip()
         # find if 
@@ -40,6 +34,16 @@ def check(url):
             stock = driver.find_element_by_xpath("(//span[contains(@class,'a-size-medium a-color-state')])[1]").text.strip()
         except:
             stock = 'Non disponibile'
+
+    if (stock != 'Non disponibile'):
+            try:
+                price = driver.find_element_by_id('priceblock_dealprice').text
+                price = float(price.strip('€'))
+            except Exception as e:
+                price = 'No Price detected'
+                print(e)
+    else:
+        price = 'No Price'
     
     driver.quit()
 
@@ -67,20 +71,24 @@ def main():
     print('Welcomeeeee')
     print()
 
-    bot = start_bot()
+    # bot = start_bot()
 
     eighties = pd.read_csv('./files/asins.csv')
     eighties.columns = ['ASIN', 'link']
 
-    for ele in eighties['ASIN']:
-        title, availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
-        print(f'\tProduct: \t{title}')
-        print(f'\tStock: \t\t{availability}')
-        print(f'\tPrice: \t\t{price}\n')
+    while True:
+        for ele in eighties['ASIN']:
+            print(ele)
+            title, availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
+            print(f'\tProduct: \t{title}')
+            print(f'\tStock: \t\t{availability}')
+            print(f'\tPrice: \t\t{price}\n')
 
-        if (availability != 'Non disponibile'):
-            print('alerting')
-            alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price}, bot)
+            if (availability != 'Non disponibile'):
+                if (price != 'No Price detected' and price != 'No Price'):
+                    if (price < 1000):
+                        print('alerting')
+                        # alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price}, bot)
 
 
 
