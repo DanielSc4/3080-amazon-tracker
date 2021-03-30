@@ -38,7 +38,6 @@ def check(url):
     if (stock != 'Non disponibile'):
             try:
                 price = driver.find_element_by_id('priceblock_dealprice').text
-                price = float(price.strip('€'))
             except Exception as e:
                 price = 'No Price detected'
                 print(e)
@@ -67,28 +66,32 @@ def start_bot():
 
 
 def main():
-    print('\n\n')
+    print()
     print('Welcomeeeee')
     print()
 
     # bot = start_bot()
 
-    eighties = pd.read_csv('./files/asins.csv')
-    eighties.columns = ['ASIN', 'link']
+    with open('./files/asins.txt') as reader:
+        eighties = reader.readlines()
 
     while True:
-        for ele in eighties['ASIN']:
-            print(ele)
-            title, availability, price = check(url = 'https://www.amazon.it/dp/' + str(ele))
-            print(f'\tProduct: \t{title}')
-            print(f'\tStock: \t\t{availability}')
-            print(f'\tPrice: \t\t{price}\n')
+        for ele in eighties:
+            ele = ele.strip(' \n')
 
-            if (availability != 'Non disponibile'):
-                if (price != 'No Price detected' and price != 'No Price'):
-                    if (price < 1000):
-                        print('alerting')
-                        # alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price}, bot)
+            # commented lines on csv
+            if (ele[0] != '#'):
+                title, availability, price = check(url = 'https://www.amazon.it/dp/' + ele)
+                print(f'\tProduct: \t{title}')
+                print(f'\tStock: \t\t{availability}')
+                print(f'\tPrice: \t\t{price}\n')
+
+                if (availability != 'Non disponibile'):
+                    if (price != 'No Price detected' and price != 'No Price'):
+                        price = float(price.strip(' €').replace(',', '.'))
+                        if (price < 1000):
+                            print('alerting')
+                            # alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price}, bot)
 
 
 
