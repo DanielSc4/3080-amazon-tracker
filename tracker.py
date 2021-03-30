@@ -15,7 +15,7 @@ import telegram, requests
 
 
 def check(url):
-    driver = webdriver.Chrome('./chromedriver')
+    driver = webdriver.Chrome('./files/chromedriver')
 
     driver.get(url)
     product_info = {}
@@ -56,7 +56,7 @@ def alert(info, bot):
 
 
 def start_bot():
-    with open('token.txt') as reader:
+    with open('./files/token.txt') as reader:
         token = reader.readline()
     bot = telegram.Bot(token = token)
     return bot
@@ -69,7 +69,7 @@ def main():
 
     bot = start_bot()
 
-    eighties = pd.read_csv('asins.csv')
+    eighties = pd.read_csv('./files/asins.csv')
     eighties.columns = ['ASIN', 'link']
 
     for ele in eighties['ASIN']:
