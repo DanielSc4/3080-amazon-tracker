@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import telegram
+import telegram, requests
 
 
 def check(url):
@@ -48,17 +48,26 @@ def check(url):
 
 
 
-def alert(info):
-    print('AAAAAA')
-    print(info)
+def alert(info, bot):
+    print('Sending')
+    message = info['Title'] + '\n\nUrl: ' + 'https://www.amazon.it/dp/' + info['ASIN'] + '\n\nStock: ' + info['Stock'] + '\n\nPrice: ' + info['Price']
+    bot.sendMessage(chat_id = 488262439, text = message)
+    print('Sent')
 
 
+def start_bot():
+    with open('token.txt') as reader:
+        token = reader.readline()
+    bot = telegram.Bot(token = token)
+    return bot
 
 
 def main():
     print('\n\n')
     print('Welcomeeeee')
     print()
+
+    bot = start_bot()
 
     eighties = pd.read_csv('asins.csv')
     eighties.columns = ['ASIN', 'link']
@@ -69,8 +78,9 @@ def main():
         print(f'\tStock: \t\t{availability}')
         print(f'\tPrice: \t\t{price}\n')
 
-        if (price != 'Non disponibile'):
-            alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price})
+        if (availability != 'Non disponibile'):
+            print('alerting')
+            alert({'ASIN':str(ele), 'Title':title, 'Stock':availability, 'Price':price}, bot)
 
 
 
