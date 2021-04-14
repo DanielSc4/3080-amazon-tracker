@@ -8,3 +8,4 @@ Update: I haven't been able to buy a 3080 yet
 
 ## How it works
 
+Still not working, under development :)
